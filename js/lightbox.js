@@ -3,7 +3,7 @@ var lightBoxService = function(){};
 lightBoxService.prototype = {
     //constants 
     constants: {
-        api_key: 'ecc75cca6422acc954c2b55da987bc1f',
+        api_key: 'b1c12e607bad259e49b47f9d3a936e15',
         photoset_id:'72157666970496405',
         user_id: '94943647%40N02',
         auth_token: '72157665050798654-dbdf19cd483108e9',
@@ -11,7 +11,6 @@ lightBoxService.prototype = {
     },
     //API endpoints
     urlMap: {
-        //getPhotos: "https://api.flickr.com/services/rest/?method=flickr.photosets.getPhotos&api_key=ecc75cca6422acc954c2b55da987bc1f&user_id=94943647%40N02&extras=url_sq%2C+url_t%2C+url_s%2C+url_m%2C+url_o&format=json&nojsoncallback=1&auth_token=72157665050798654-dbdf19cd483108e9&api_sig=85add835afe6120f7c3c9254bf7abb2f"
         getPhotos: "https://api.flickr.com/services/rest/?method=flickr.photosets.getPhotos&api_key={0}&photoset_id={1}&user_id={2}&extras=url_sq%2C+url_t%2C+url_s%2C+url_m%2C+url_o&format=json&nojsoncallback=1"
     },
     //photo count
@@ -157,7 +156,7 @@ lightBoxService.prototype = {
             default: return; // exit this handler for other keys
         }
             e.preventDefault();
-        }
+        };
 
     },
     //close light box
@@ -170,7 +169,7 @@ lightBoxService.prototype = {
                 self.hideElement(overlay);
                 self.hideElement(lightbox);
             }
-        }
+        };
     },
     //show light box
     lightBox: function(photo){
