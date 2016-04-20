@@ -1,1 +1,38 @@
-My Page
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <title>LightBox </title>
+        <link href="css/base.css" rel="stylesheet" media="screen">
+        <link href="css/app.css" rel="stylesheet" media="screen">
+    </head>
+    <body>
+        <nav class="top-nav padding-small">
+            <h1 class="margin-top-none">Lightbox</h1>
+        </nav>
+        <div class="container margin-top-medium">
+            <div class="lightbox-grid"></div>
+            <div class="lightbox">
+                <div class="photo-container">
+                </div>
+            </div>
+            
+        </div>
+        </div><!--container -->
+        <div class="lightbox-overlay"></div>
+        <!-- FOOTER -->
+        <footer>
+        
+        </footer>
+    <!--load javascript-->
+    <script src="js/lightbox.js"></script>
+    <script>
+        var lightBox = new lightBoxService();
+        lightBox.init({}); 
+    </script>
+    </body>
+</html>
