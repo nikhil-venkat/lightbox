@@ -265,9 +265,10 @@ lightBoxService.prototype = {
         var img_url = photo[self.options.lightBoxPhotoSize];
         var width = photo[self.options.lightBoxPhotoWidth];
         var height = photo[self.options.lightBoxPhotoHeight];
+        var title = photo.title;
         
         var imageHtml = '';
-        imageHtml += '<div style="margin:auto; width: '+width+'px; height: '+height+'px;background-image:url(\''+img_url+'\')" class="photo margin-xx-small" ></div>';
+        imageHtml += '<div style="margin:auto; width: '+width+'px; height: '+height+'px;background-image:url(\''+img_url+'\')" class="photo margin-xx-small" ><span class="title">'+title+'</span></div>';
 
         photoContainer.style.width  = width+'px';
         photoContainer.style.height  = height+'px';
@@ -292,11 +293,11 @@ lightBoxService.prototype = {
         prev.style.marginTop = (photoObj.height_o/2)+'px';
 
         next.onclick = function(evt){
-            self.paginate(photo,'next');
+            self.paginate(photoObj,'next');
         };
 
         prev.onclick = function(evt){
-            self.paginate(photo,'prev');
+            self.paginate(photoObj,'prev');
         };
     },
     //add class helper

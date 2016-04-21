@@ -31,9 +31,6 @@ body{
     position: relative;
     color:#fff;
 }
-.lightbox > .pagination .next{
-    
-}
 
 .lightbox-container{
     position: fixed;
@@ -79,6 +76,14 @@ body{
 
 .photo-container .photo{
     border: 2px solid #fff;
+}
+
+.photo-container .photo .title{
+    position: relative;
+    color: #ddd;
+    font-size: 0.75em;
+    top: 90%;
+    left: 80%;
 }
 
 .pagination .next, .pagination .prev{
