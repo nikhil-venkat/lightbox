@@ -18,6 +18,7 @@ lightBoxService.prototype = {
     //array to hold photo list
     photosList: [],
     lightBoxMap: {},
+    options: {},
     //helper for ajax 
     makeAjaxCall: function(url,method,data,callback){
         if(!method){
@@ -64,16 +65,54 @@ lightBoxService.prototype = {
     removeFromLocalStorage: function(){
         localStorage.removeItem('lightbox_photo');
     },
-    //init 
-    init:function(options){
+    //append lightbox html
+    appendLightBox: function(){
+        var self =  this;
+        var lightBox = document.createElement('div');
+        lightBox.className = 'lightbox';
+        var lightboxHtml = '<div class="photo-container"></div>';
+        lightBox.innerHTML = lightboxHtml;
+        var grid = self.getElements(self.options.gridClassName);
+        var container=  self.getElements('container');
+        container.insertBefore(lightBox,grid);
+    },
+    appendPagination: function(){
         var self = this;
         var pagination = document.createElement('div');
         self.addClass(pagination,'pagination');
         pagination.innerHTML = '<button class="next float-right" href="#">❯</button><button class="prev float-left" href="#">❮</button>';
         var lightbox = self.getElements('lightbox');
-        var photoContainer = self.getElements('photo-container');
+        var photoContainer = document.createElement('div');
+        photoContainer.className = 'photo-container';
+        photoContainer  = self.getElements('photo-container');
         lightbox.insertBefore(pagination,photoContainer);
+
+    },
+    setDefaults: function(optionsObj){
+        var self = this;
+        self.options = Object.create(optionsObj);
+
+        if(optionsObj.gridPhotoSize == ""){
+            delete optionsObj.gridPhotoSize;
+        }
+        if(optionsObj.lightBoxPhotoSize == ""){
+            delete optionsObj.lightBoxPhotoSize;
+        }
+        self.options.gridPhotoSize = optionsObj.gridPhotoSize ? 'url_'+optionsObj.gridPhotoSize : 'url_m';
+        self.options.gridPhotoWidth = optionsObj.gridPhotoSize ?'width_'+optionsObj.gridPhotoSize : 'width_m';
+        self.options.gridPhotoHeight = optionsObj.gridPhotoSize ? 'height_'+optionsObj.gridPhotoSize : 'height_m';
+
+        self.options.lightBoxPhotoSize = optionsObj.lightBoxPhotoSize ? 'url_'+optionsObj.lightBoxPhotoSize : 'url_o';
+        self.options.lightBoxPhotoWidth = optionsObj.lightBoxPhotoSize ? 'width_'+optionsObj.lightBoxPhotoSize : 'width_o';
+        self.options.lightBoxPhotoHeight = optionsObj.lightBoxPhotoSize ? 'height_'+optionsObj.lightBoxPhotoSize : 'height_o';
+    },
+    //init 
+    init:function(options){
+        var self = this;
         
+        self.setDefaults(options);
+        self.appendLightBox();
+        self.appendPagination();
         //get photos
         self.getPhotos(function(response){
             if(response){
@@ -87,6 +126,7 @@ lightBoxService.prototype = {
             }
         });
         self.bindNavAway();
+        
     },
     //get photos method 
     getPhotos: function(callback){
@@ -120,14 +160,14 @@ lightBoxService.prototype = {
             photoToLoad = this.photosList[index-1];
         }
 
-        this.adjustPagination(photoToLoad);
+        this.togglePagination(photoToLoad);
 
         if(photoToLoad){
             this.lightBox(photoToLoad);
         }
     },
     //helper to enable/disable pagination arrows
-    adjustPagination :function(photo){
+    togglePagination :function(photo){
         var photoIndex = this.getPhotoIndexFromList(photo);
         //attach click events for next / prev
         var next = this.getElements('next');
@@ -212,21 +252,18 @@ lightBoxService.prototype = {
         self.bindCloseLightBox(lightBoxOverlay,lightbox);
         self.bindKeyPressEvents(photo);
         self.bindNavAway();
+        self.positionPaginationButtons(photo);
 
         self.showElement(lightBoxOverlay);
-
         self.addClass(lightBoxOverlay,'active');
 
-        var img_url = photo.url_o;
-        var width = photo.width_o;
-        var height = photo.height_o;
+        var img_url = photo[self.options.lightBoxPhotoSize];
+        var width = photo[self.options.lightBoxPhotoWidth];
+        var height = photo[self.options.lightBoxPhotoHeight];
         
-        self.setUpPagination(photo);
-
         var imageHtml = '';
         imageHtml += '<div style="margin:auto; width: '+width+'px; height: '+height+'px;background-image:url(\''+img_url+'\')" class="photo margin-xx-small" ></div>';
 
-        
         photoContainer.style.width  = width+'px';
         photoContainer.style.height  = height+'px';
         photoContainer.style.margin  = 'auto';
@@ -234,12 +271,20 @@ lightBoxService.prototype = {
 
         self.showElement(lightbox);
 
-        self.adjustPagination(photo);
+        self.togglePagination(photo);
         
         self.lightBoxMap[photo] = true;
 
-        var next = self.getElements('next');
-        var prev = self.getElements('prev');
+    },
+    //adjust pagination postion based on image size
+    positionPaginationButtons: function(photoObj){
+        var pagination = this.getElements('pagination');
+        var next = this.getElements('next');
+        var prev = this.getElements('prev');
+
+        pagination.style.width = photoObj.width_o+'px';
+        next.style.marginTop = (photoObj.height_o/2)+'px';
+        prev.style.marginTop = (photoObj.height_o/2)+'px';
 
         next.onclick = function(evt){
             self.paginate(photo,'next');
@@ -248,16 +293,6 @@ lightBoxService.prototype = {
         prev.onclick = function(evt){
             self.paginate(photo,'prev');
         };
-    },
-    //adjust pagination postion based on image size
-    setUpPagination: function(photoObj){
-        var pagination = this.getElements('pagination');
-        var next = this.getElements('next');
-        var prev = this.getElements('prev');
-
-        pagination.style.width = photoObj.width_o+'px';
-        next.style.marginTop = (photoObj.height_o/2)+'px';
-        prev.style.marginTop = (photoObj.height_o/2)+'px';
     },
     //add class helper
     addClass: function(elem,className){
@@ -302,9 +337,10 @@ lightBoxService.prototype = {
         for(var i=0; i< recordsLength; i++){
             //url_sq, url_t, url_s, url_m, url_o
             var item = records[i];
-            var img_url = records[i].url_m;
-            var width = records[i].width_m;
-            var height = records[i].height_m;
+
+            var img_url = records[i][self.options.gridPhotoSize];
+            var width = records[i][[self.options.gridPhotoWidth]];
+            var height = records[i][[self.options.gridPhotoHeight]];
             var photo = document.createElement("div");
             var imageHtml = '';
             imageHtml += '<div style="float:left; width: '+width+'px; height: '+height+'px;background-image:url(\''+img_url+'\')" class="photo margin-xx-small" ></div>';
@@ -316,15 +352,7 @@ lightBoxService.prototype = {
     }
 };
 
-//String format function
-if (!String.prototype.format) {
-  String.prototype.format = function() {
-    var args = arguments;
-    return this.replace(/{(\d+)}/g, function(match, number) {
-      return typeof args[number] != 'undefined'? args[number]: match;
-    });
-  };
-}
+
 
 
 

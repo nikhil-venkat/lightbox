@@ -15,14 +15,9 @@
             <h1 class="margin-top-none padding-x-small">Lightbox</h1>
         </nav>
         <div class="container margin-top-medium">
-            <div class="lightbox-grid"></div>
-            <div class="lightbox">
-                <div class="photo-container">
-                </div>
-            </div>
             
-        </div>
-        </div><!--container -->
+            <div class="lightbox-grid"></div>
+
         <div class="lightbox-overlay"></div>
         <!-- FOOTER -->
         <footer>
@@ -30,9 +25,16 @@
         </footer>
     <!--load javascript-->
     <script src="js/lightbox.js"></script>
+    <script src="js/extends.js"></script>
     <script>
         var lightBox = new lightBoxService();
-        lightBox.init({}); 
+        lightBox.init({
+            'gridClassName':'lightbox-grid',
+            //sq, t, s, m, o
+            'gridPhotoSize':"m",
+            //sq, t, s, m, o
+            'lightBoxPhotoSize':"o"
+        }); 
     </script>
     </body>
 </html>

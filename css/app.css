@@ -1,22 +1,23 @@
 html{
     font-family:Arial;
 }
+
+body{
+    background: #ddd;
+}
 .top-nav{
     background: #000;
     color: #fff;
 }
 
 .container{
-    min-width: 800px;
-    max-width: calc(100% - 28%);
+    width: 1024px;
+    max-width: 100%;
     margin: auto;
 }
 
 
 /**lightbox css**/
-.lightbox-grid{
-
-}
 .lightbox-grid .photo{
     cursor: pointer;
 }
