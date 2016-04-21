@@ -122,6 +122,9 @@ lightBoxService.prototype = {
                     self.photosCount = resultList.photoset.photo.length;
                     self.photosList = resultList.photoset.photo;
                     self.renderPhotos('lightbox-grid',resultList.photoset.photo);
+                }else{
+                    var error = self.getElements('error');
+                    error.innerHTML = "There was an error processing your request!";
                 }
             }
         });
@@ -130,13 +133,15 @@ lightBoxService.prototype = {
     },
     //get photos method 
     getPhotos: function(callback){
+        var self = this;
         var url = this.urlMap.getPhotos;
         url = url.format(this.constants.api_key,this.constants.photoset_id,this.constants.user_id);
         this.makeAjaxCall(url,'get',null,function(response){
             if(response && response.status ===200 ){
                 callback(response.responseText);
             }else{
-                callback('There was an error processing your request!');
+                var error = self.getElements('error');
+                error.innerHTML = "There was an error processing your request!";
             }
         });
     },

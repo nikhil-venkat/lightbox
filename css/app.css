@@ -86,6 +86,10 @@ body{
     background: #fff;
 }
 
+.error{
+    color: red;
+    text-align: center;
+}
 /*helpers*/
 
 .clear-left {
