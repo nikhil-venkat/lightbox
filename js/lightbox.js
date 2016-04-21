@@ -17,6 +17,7 @@ lightBoxService.prototype = {
     photosCount: 0,
     //array to hold photo list
     photosList: [],
+    lightBoxMap: {},
     //helper for ajax 
     makeAjaxCall: function(url,method,data,callback){
         if(!method){
@@ -55,14 +56,22 @@ lightBoxService.prototype = {
         }
 
     },
+    //save to localstorage
+    saveToLocalStorage: function(photo){
+        localStorage.setItem('lightbox_photo', JSON.stringify(photo));
+    },
+    //save to localstorage
+    removeFromLocalStorage: function(){
+        localStorage.removeItem('lightbox_photo');
+    },
     //init 
     init:function(options){
         var self = this;
         var pagination = document.createElement('div');
         self.addClass(pagination,'pagination');
         pagination.innerHTML = '<button class="next float-right" href="#">❯</button><button class="prev float-left" href="#">❮</button>';
-        var lightbox = this.getElements('lightbox');
-        var photoContainer = this.getElements('photo-container');
+        var lightbox = self.getElements('lightbox');
+        var photoContainer = self.getElements('photo-container');
         lightbox.insertBefore(pagination,photoContainer);
         
         //get photos
@@ -77,6 +86,7 @@ lightBoxService.prototype = {
                 }
             }
         });
+        self.bindNavAway();
     },
     //get photos method 
     getPhotos: function(callback){
@@ -159,15 +169,32 @@ lightBoxService.prototype = {
         };
 
     },
+    closeLightBox: function(){
+        var self = this;
+        var lightbox = self.getElements('lightbox');
+        var lightBoxOverlay = self.getElements('lightbox-overlay');
+        self.hideElement(lightBoxOverlay);
+        self.hideElement(lightbox);
+        self.removeFromLocalStorage();
+    },
     //close light box
-    bindCloseLightBox:function(overlay,lightbox){
-        self = this;
+    bindCloseLightBox:function(){
+        var self = this;
         var body = self.getElements('body');
 
         body.onclick = function(e){
             if(e.target.className === 'lightbox'){
-                self.hideElement(overlay);
-                self.hideElement(lightbox);
+                self.closeLightBox();
+            }
+        };
+    },
+    bindNavAway: function(){
+        var self = this;
+        var body = self.getElements('body');
+        body.onload = function(evt){
+            var photo = JSON.parse(window.localStorage.getItem('lightbox_photo'));
+            if(photo && Object.keys(photo).length){
+                self.lightBox(photo);
             }
         };
     },
@@ -175,22 +202,26 @@ lightBoxService.prototype = {
     lightBox: function(photo){
         var self = this;
 
+        self.saveToLocalStorage(photo);
+        self.lightBoxMap = {};
+
         var lightbox = self.getElements('lightbox');
-        var photoContainer =  this.getElements('photo-container');
-        var lightBoxOverlay = this.getElements('lightbox-overlay');
+        var photoContainer =  self.getElements('photo-container');
+        var lightBoxOverlay = self.getElements('lightbox-overlay');
         
-        this.bindCloseLightBox(lightBoxOverlay,lightbox);
-        this.bindKeyPressEvents(photo);
+        self.bindCloseLightBox(lightBoxOverlay,lightbox);
+        self.bindKeyPressEvents(photo);
+        self.bindNavAway();
 
-        this.showElement(lightBoxOverlay);
+        self.showElement(lightBoxOverlay);
 
-        this.addClass(lightBoxOverlay,'active');
+        self.addClass(lightBoxOverlay,'active');
 
-        var img_url = photo.url_m;
-        var width = photo.width_m;
-        var height = photo.height_m;
+        var img_url = photo.url_o;
+        var width = photo.width_o;
+        var height = photo.height_o;
         
-        this.setUpPagination(photo);
+        self.setUpPagination(photo);
 
         var imageHtml = '';
         imageHtml += '<div style="margin:auto; width: '+width+'px; height: '+height+'px;background-image:url(\''+img_url+'\')" class="photo margin-xx-small" ></div>';
@@ -201,12 +232,14 @@ lightBoxService.prototype = {
         photoContainer.style.margin  = 'auto';
         photoContainer.innerHTML = imageHtml;
 
-        this.showElement(lightbox);
+        self.showElement(lightbox);
 
-        this.adjustPagination(photo);
+        self.adjustPagination(photo);
         
-        var next = this.getElements('next');
-        var prev = this.getElements('prev');
+        self.lightBoxMap[photo] = true;
+
+        var next = self.getElements('next');
+        var prev = self.getElements('prev');
 
         next.onclick = function(evt){
             self.paginate(photo,'next');
@@ -222,9 +255,9 @@ lightBoxService.prototype = {
         var next = this.getElements('next');
         var prev = this.getElements('prev');
 
-        pagination.style.width = photoObj.width_m+'px';
-        next.style.marginTop = (photoObj.height_m/2)+'px';
-        prev.style.marginTop = (photoObj.height_m/2)+'px';
+        pagination.style.width = photoObj.width_o+'px';
+        next.style.marginTop = (photoObj.height_o/2)+'px';
+        prev.style.marginTop = (photoObj.height_o/2)+'px';
     },
     //add class helper
     addClass: function(elem,className){
@@ -257,7 +290,7 @@ lightBoxService.prototype = {
     //render photo grid
     renderPhotos: function(className,records){
         var self = this;
-        var photoGrid = this.getElements(className);
+        var photoGrid = self.getElements(className);
         var recordsLength = records.length;
         var photos = document.createElement("div");
         photoGrid.appendChild(photos);
